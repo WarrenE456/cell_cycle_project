@@ -1,11 +1,8 @@
 #include "headers/openGLdebug.hpp"
-#include <stdexcept>
-#include <string>
-#include "headers/applicationClass.hpp"
 #include "../include/GLFW/glfw3.h"
-
-// Path to source directory
-const std::string SOURCE_DIRECTORY = std::string(__FILE__).substr(0, std::string(__FILE__).find_last_of("/\\"));
+#include <stdexcept>
+#include "headers/applicationClass.hpp"
+#include "headers/cellClass.hpp"
 
 void Application::Init(GLuint glMajorVersion, GLuint glMinorVersion) {
     // Initalize GLFW
@@ -53,7 +50,21 @@ Application::~Application() {
 }
 
 int Application::Run() {
-	std::cout << "Hello, world\n";
-	return 0;
+    Cells cells(1, 0.1);
+    
+    while (!glfwWindowShouldClose(this->window)) {
+
+        // Clear screen
+        GLCALL(glClear(GL_COLOR_BUFFER_BIT));
+
+        // Draw particles to screen
+        cells.Draw();
+
+        // Swap buffers and pole events
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    return 0;
 }
 

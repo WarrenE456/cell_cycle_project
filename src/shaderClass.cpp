@@ -2,6 +2,7 @@
 #include "../include/glad/glad.h"
 #include "headers/shaderClass.hpp"
 #include <cstdio>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -66,6 +67,17 @@ Shader::Shader(const char* vertexFilePath, const char* fragmentFilePath) {
     GLCALL(glAttachShader(ID, vertexShader));
     GLCALL(glAttachShader(ID, fragmentShader));
     GLCALL(glLinkProgram(ID));
+
+    // Check success of linking program
+    GLint success;
+    GLchar infoLog[512];
+
+    GLCALL(glGetProgramiv(ID, GL_LINK_STATUS, &success));
+    if (!success) {
+        GLCALL(glGetProgramInfoLog(ID, 512, NULL, infoLog));
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        throw std::exception();
+    }
 
     // Delete shaders 
     GLCALL(glDeleteShader(vertexShader));

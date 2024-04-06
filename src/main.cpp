@@ -7,7 +7,7 @@ int main() {
 	glMinorVersion = 3,
 	glMajorVersion = 3;
 
-	Application app(height, width, glMajorVersion, glMinorVersion);
+	Application app(glMajorVersion, glMinorVersion, height, width);
 	int status = app.Run();
 
 	return status;
