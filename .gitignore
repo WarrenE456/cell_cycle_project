@@ -2,6 +2,10 @@
 
 # Build directory
 out/build/
+build/
+
+# Clangd LSP
+.cache/
 
 #       CPP
 
