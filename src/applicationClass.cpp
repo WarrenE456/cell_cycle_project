@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "headers/applicationClass.hpp"
 #include "headers/cellClass.hpp"
+#include "headers/timerClass.hpp"
 
 void Application::Init(GLuint glMajorVersion, GLuint glMinorVersion) {
     // Initalize GLFW
@@ -50,12 +51,22 @@ Application::~Application() {
 }
 
 int Application::Run() {
-    Cells cells(1, 0.1);
+    Cells cells(20, 0.05);
     
+    static float loopDurationSeconds = 0.0;
+
     while (!glfwWindowShouldClose(this->window)) {
+        // std::cout << loopDurationSeconds << "\n";
+
+        // Start timer
+        Timer clock;
 
         // Clear screen
         GLCALL(glClear(GL_COLOR_BUFFER_BIT));
+
+        // Update cells
+        cells.Update(loopDurationSeconds);
+        cells.UpdateBufferData();
 
         // Draw particles to screen
         cells.Draw();
@@ -63,6 +74,10 @@ int Application::Run() {
         // Swap buffers and pole events
         glfwSwapBuffers(window);
         glfwPollEvents();
+ 
+        // End timer
+        long duration = clock.GetTime<std::chrono::milliseconds>();
+        loopDurationSeconds = (float)duration / 1000.0;
     }
 
     return 0;
