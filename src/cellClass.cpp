@@ -57,28 +57,32 @@ const static unsigned int DECIMAL_PERCISION = 5;
 
 void Cells::Init() {
 
-    // Generate random particle positions
+    // Generate random particle positions, speed multipliers, and apoptosis resistance
     this->pos.reserve(this->N * 2);
     this->vel.reserve(this->N * 2);
     for (int i = 0; i < this->N; ++i) {
-        std::uniform_int_distribution<int> uniform_distribution(-std::pow(10, DECIMAL_PERCISION), std::pow(10, DECIMAL_PERCISION));
-        std::random_device random_device;
+        std::uniform_int_distribution<int> uniformDistribution(-std::pow(10, DECIMAL_PERCISION), std::pow(10, DECIMAL_PERCISION));
+        std::random_device randomDevice;
 
         // Randomly generate position in [-1, 1]
-        float xPos = uniform_distribution(random_device) / (float)std::pow(10, DECIMAL_PERCISION);
-        float yPos = uniform_distribution(random_device) / (float)std::pow(10, DECIMAL_PERCISION);
+        float xPos = uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION);
+        float yPos = uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION);
 
         // Asign position
         this->pos.push_back(xPos);
         this->pos.push_back(yPos);
 
         // Randomly generate velocity
-        float xVel = uniform_distribution(random_device) / (float)std::pow(10, DECIMAL_PERCISION) / 14.0;
-        float yVel = uniform_distribution(random_device) / (float)std::pow(10, DECIMAL_PERCISION) / 14.0;
+        float xVel = uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) / 14.0;
+        float yVel = uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) / 14.0;
 
         // Asign velocity
         this->vel.push_back(xVel);
         this->vel.push_back(yVel);
+
+        // Generate speed multiplier
+        this->speedMultiplier.push_back(1.0);
+        speedMultiplier[i] += uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) * .2;
     }
 
     // x position in quad, y position in quad, particle position x, particle position y, particle position z
@@ -266,7 +270,7 @@ void Cells::Update(float deltaSeconds) {
     for (int i = 0; i < this->N; ++i) {
 
         // Update the amount of time in the current phase
-        this->statusDurationSeconds[i] += deltaSeconds;
+        this->statusDurationSeconds[i] += deltaSeconds * this->speedMultiplier[i];
 
         // Get the current stage of the cell (as an integer for ease of use)
         int currentStage = this->GetVerts(S, 0, i);
@@ -314,6 +318,17 @@ void Cells::Update(float deltaSeconds) {
                     offset + 0, offset + 2, offset + 3,
                 };
                 this->indices.insert(indices.end(), index.begin(), index.end());
+
+                // Modify the speedMultiplier values
+                std::uniform_int_distribution<int> uniformDistribution((int)(-0.5 * std::pow(10, DECIMAL_PERCISION)), std::pow(10, DECIMAL_PERCISION));
+                std::random_device randomDevice;
+
+                float speedMultiplierMultiplier = 1.0 + uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) * .5;
+                this->speedMultiplier.push_back(speedMultiplier[i] * speedMultiplierMultiplier);
+
+                speedMultiplierMultiplier = 1.0 + uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) * .5;
+                this->speedMultiplier[i] *= speedMultiplierMultiplier;
+
 
                 // Increase the number of cells by 1 and mark that a cell has been duplicated
                 this->N += 1;

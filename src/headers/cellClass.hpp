@@ -17,6 +17,9 @@ class Cells {
 	Shader shaderProgram;	
 	std::vector<float> pos; // Position of each particle
 	std::vector<float> vel; // Velocity of each particle
+	// Multipies the speed that each cell goes through the cell cycle, > 2.0 = cancer cell
+	// The higher the speed multiplier, the more resistant the cell is to apoptosis
+	std::vector<float> speedMultiplier;
 	std::vector<float> statusDurationSeconds; // Duration in seconds in current stage of cycle
 	std::vector<GLfloat> verts; // Vertex data
 	std::vector<GLuint> indices; // Index data
