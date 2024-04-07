@@ -260,6 +260,8 @@ void Cells::Draw() {
 
 void Cells::Update(float deltaSeconds) {
 
+    this->duplicationOcured = false;
+
     // Update cell cycle
     for (int i = 0; i < this->N; ++i) {
 
@@ -273,12 +275,49 @@ void Cells::Update(float deltaSeconds) {
         if (this->statusDurationSeconds[i] >= CellPhases::durationSeconds[currentStage]) {
 
             // Move the cell to the next stage
+            bool cellShouldDuplicate = false;
             for (int j = 0; j < 4; j++) {
                 this->GetVerts(S, j, i) += 1;
 
                 // Wrap the cell back to g1-phase if it has completed the cycle
-                if (this->GetVerts(S, j, i) >= CellPhases::count) this->GetVerts(S, j, i) = CellPhases::Status::g1;
+                if (cellShouldDuplicate || this->GetVerts(S, j, i) >= CellPhases::count) {
+                    cellShouldDuplicate = true;
+                    this->GetVerts(S, j, i) = CellPhases::Status::g1;
+                }
+            }
 
+            if (cellShouldDuplicate) {
+
+                // Duplicate the position
+                this->pos.push_back(this->GetPos(X, i));
+                this->pos.push_back(this->GetPos(Y, i));
+
+                // Duplicate and flip the velocity
+                this->vel.push_back(this->GetVel(X, i) * -1);
+                this->vel.push_back(this->GetVel(Y, i) * -1);
+
+                // Duplicate the status duration
+                this->statusDurationSeconds.push_back(0.0);
+
+                // Number of floats in each vertex
+                unsigned int quadSize = this->verts.size() / this->N;
+
+                // Duplicate the quad
+                this->verts.insert(verts.end(), verts.begin() + quadSize * i, verts.begin() + quadSize * (i + 1));
+
+                // Create new index buffer
+                unsigned int offset = 4 * this->N;
+
+                // Create new index buffer section
+                std::vector<GLuint> index = {
+                    offset + 0, offset + 1, offset + 2,
+                    offset + 0, offset + 2, offset + 3,
+                };
+                this->indices.insert(indices.end(), index.begin(), index.end());
+
+                // Increase the number of cells by 1 and mark that a cell has been duplicated
+                this->N += 1;
+                this->duplicationOcured = true;
             }
 
             // Reset the duration for the current stage
@@ -356,7 +395,14 @@ void Cells::UpdateBufferData() {
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, this->VBO));
 
     // Fill vertex buffer with new data
-    GLCALL(glBufferSubData(GL_ARRAY_BUFFER, 0, verts.size() * sizeof(GLfloat), verts.data()));
+
+    // If no dupliction occured then sub data, other wise more space needs to be allocated
+    if (!duplicationOcured) {
+        GLCALL(glBufferSubData(GL_ARRAY_BUFFER, 0, verts.size() * sizeof(GLfloat), verts.data()));
+    } else {
+        GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, verts.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_DRAW));
+        GLCALL(glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(GLfloat), verts.data(), GL_DYNAMIC_DRAW));
+    }
 
     // Unbind Vertex Buffer
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, 0));

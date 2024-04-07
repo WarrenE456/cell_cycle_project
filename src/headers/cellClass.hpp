@@ -20,6 +20,7 @@ class Cells {
 	std::vector<float> statusDurationSeconds; // Duration in seconds in current stage of cycle
 	std::vector<GLfloat> verts; // Vertex data
 	std::vector<GLuint> indices; // Index data
+	bool duplicationOcured;
 	GLuint VAO, VBO, EBO, texture[8];
 
 	float& GetPos(unsigned int dimension, unsigned int index);
