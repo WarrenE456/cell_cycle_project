@@ -51,7 +51,7 @@ Application::~Application() {
 }
 
 int Application::Run() {
-    Cells cells(10, 0.1);
+    Cells cells(20, 0.1);
     
     static float loopDurationSeconds = 0.0;
 

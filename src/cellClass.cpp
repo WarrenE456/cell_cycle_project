@@ -222,6 +222,16 @@ void Cells::Init() {
     }
 
     GLCALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+    // Asign duration of each stage at random point
+    this->statusDurationSeconds.reserve(this->N);
+    for (int i = 0; i < this->N; ++i) {
+        std::uniform_int_distribution<unsigned int> uniformDistribution(0, std::pow(10, DECIMAL_PERCISION));
+        std::random_device randomDevice;
+
+        float duration = uniformDistribution(randomDevice) / (float)std::pow(10, DECIMAL_PERCISION) * CellPhases::durationSeconds[(int)this->GetVerts(S, 0, i)];
+        statusDurationSeconds.push_back(duration);
+    }
 }
 
 void Cells::Draw() {
@@ -249,6 +259,52 @@ void Cells::Draw() {
 }
 
 void Cells::Update(float deltaSeconds) {
+
+    // Update cell cycle
+    for (int i = 0; i < this->N; ++i) {
+
+        // Update the amount of time in the current phase
+        this->statusDurationSeconds[i] += deltaSeconds;
+
+        // Get the current stage of the cell (as an integer for ease of use)
+        int currentStage = this->GetVerts(S, 0, i);
+
+        // Check if the cell has been in the current phase for the full time it should
+        if (this->statusDurationSeconds[i] >= CellPhases::durationSeconds[currentStage]) {
+
+            // Move the cell to the next stage
+            for (int j = 0; j < 4; j++) {
+                this->GetVerts(S, j, i) += 1;
+
+                // Wrap the cell back to g1-phase if it has completed the cycle
+                if (this->GetVerts(S, j, i) >= CellPhases::count) this->GetVerts(S, j, i) = CellPhases::Status::g1;
+
+            }
+
+            // Reset the duration for the current stage
+            this->statusDurationSeconds[i] = 0.0;
+        }
+    }
+
+    // Update the radius of the cells
+    for (int i = 0; i < this->N; ++i) {
+
+        // Get the current stage (as an integer)
+        int currentStage = this->GetVerts(S, 0, i);
+
+        // Calculate what percent through the cell cycle we are
+        float progressPercent = this->statusDurationSeconds[i] / CellPhases::durationSeconds[currentStage];
+
+        // Calcuate what the radius should be based on the progress percentage
+        using namespace CellPhases;
+        float radius = minRadius[currentStage] + (maxRadius[currentStage] - minRadius[currentStage]) * progressPercent;
+        radius *= this->r;
+
+        // Update radius of cell
+        for (int j = 0; j < 4; j++) {
+            this->GetVerts(R, j, i) = radius;
+        }
+    }
 
     // Check bounds
     for (int i = 0; i < this->N; ++i) {
