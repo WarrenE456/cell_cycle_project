@@ -2,8 +2,8 @@
 
 int main() {
 	unsigned int
-	height = 800,
-	width = 800,
+	height = 1000,
+	width = 1000,
 	glMinorVersion = 3,
 	glMajorVersion = 3;
 

@@ -51,12 +51,11 @@ Application::~Application() {
 }
 
 int Application::Run() {
-    Cells cells(20, 0.05);
+    Cells cells(10, 0.1);
     
     static float loopDurationSeconds = 0.0;
 
     while (!glfwWindowShouldClose(this->window)) {
-        // std::cout << loopDurationSeconds << "\n";
 
         // Start timer
         Timer clock;
