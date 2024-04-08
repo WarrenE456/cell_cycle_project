@@ -4,6 +4,7 @@
 #include "headers/shaderClass.hpp"
 #include "srcDir.hpp"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <random>
@@ -352,7 +353,7 @@ void Cells::Update(float deltaSeconds) {
         // Calcuate what the radius should be based on the progress percentage
         using namespace CellPhases;
         float radius = minRadius[currentStage] + (maxRadius[currentStage] - minRadius[currentStage]) * progressPercent;
-        radius *= this->r;
+        radius *= this->r / std::min(speedMultiplier[i], 3.0f);
 
         // Update radius of cell
         for (int j = 0; j < 4; j++) {
