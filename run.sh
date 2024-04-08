@@ -1,7 +1,7 @@
 #!/bin/bash
 # run the executable
 
-project_name="example"
+project_name="cell_cycle_sim"
 
 if [ "$1" = "release" ]; then
     cd out/build/release && ./"${project_name}"

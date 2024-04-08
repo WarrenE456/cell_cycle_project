@@ -15,7 +15,7 @@ void Application::Init(GLuint glMajorVersion, GLuint glMinorVersion) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window
-    this->window = glfwCreateWindow(this->width, this->height, "SPH Simulation", NULL, NULL);
+    this->window = glfwCreateWindow(this->width, this->height, "Cell cycle simulation", NULL, NULL);
     if (!window) {
         throw std::runtime_error("Failed to create window.");
     }

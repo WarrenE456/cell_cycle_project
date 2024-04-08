@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.1)
 # If the project name is changed also update the run.sh
-project(example)
+project(cell_cycle_sim)
 
 # Add all files in src and glad.c to source files for executable
 file(GLOB SRC_FILES src/*)
